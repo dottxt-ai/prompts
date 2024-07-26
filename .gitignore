@@ -1,0 +1,6 @@
+# pixi environments
+.pytest_cache
+*.egg-info
+__pycache__
+_version.py
+.cache
