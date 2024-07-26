@@ -1,36 +1,43 @@
 import inspect
 import re
-from dataclasses import dataclass
-from typing import Any, Callable, Dict, List, Optional, cast
+from dataclasses import dataclass, field
+from functools import lru_cache
+from typing import Callable, Dict, Hashable, Optional, cast
 
 from jinja2 import Environment, StrictUndefined
 
 
 @dataclass
 class Template:
-    """Represents a prompt function.
+    """Represents a prompt template.
 
-    We return a `Prompt` class instead of a simple function so the
-    template defined in prompt functions can be accessed.
+    A prompt template is a callable that, given a Jinja2 template and a set of values,
+    renders the template using those values. It is recommended to instantiate `Temaplate`
+    using the `template` decorator, which extracts the template from the function's
+    docstring and its variables from the function's signature.
 
-    TODO: Store variables instead of signature?
+    It is not uncommon that, for the same taks, different models will perform
+    better with different prompt. Here we thus allow to dispatch to associate a
+    prompt with a task and dispatch the prompt based on the model being used; a
+    `Template` instance is thus also a registry that associates model names to
+    other templates.
+
 
     Attributes
     ----------
     template
         The template to render.
-    model
-        The model used for inference.
     signature
         The prompt function's signature.
+    registry
+        Registry that maps function names to their respective `Template`
+        instances.
 
     """
 
     template: str
     signature: inspect.Signature
-
-    def __post_init__(self):
-        self.parameters: List[str] = list(self.signature.parameters.keys())
+    registry: Dict[str, Callable] = field(default_factory=dict)
 
     def __call__(self, *args, **kwargs) -> str:
         """Render and return the template.
@@ -46,6 +53,40 @@ class Template:
 
     def __str__(self):
         return self.template
+
+    def __getitem__(self, model_name: str):
+        """Get the prompt template corresponding to a model name.
+
+        We return the default template when trying to fetch a
+        template for a model that was not registered.
+
+        Parameters
+        ----------
+        model_name
+            The name of the model whose prompt template we want to retrieve.
+
+        Returns
+        -------
+        The template registered for the model name.
+
+        """
+        try:
+            return self.registry[model_name]
+        except KeyError:
+            return self
+
+    def register(self, model_name: str):
+        """Register the prompt template, as represented by a prompt function,
+        for the model name.
+
+        """
+
+        def wrapper(fn: Callable):
+            tpl = template(fn)
+            self.registry[model_name] = tpl
+            return tpl
+
+        return wrapper
 
 
 def template(fn: Callable) -> Template:
@@ -96,7 +137,8 @@ def template(fn: Callable) -> Template:
     return Template(template, signature)
 
 
-def render(template: str, **values: Optional[Dict[str, Any]]) -> str:
+@lru_cache
+def render(template: str, **values: Optional[Dict[str, Hashable]]) -> str:
     r"""Parse a Jinaj2 template and translate it into an Outlines graph.
 
     This function removes extra whitespaces and linebreaks from templates to
