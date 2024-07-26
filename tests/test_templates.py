@@ -67,7 +67,7 @@ def test_render_jinja():
     """
 
     # Notice the newline after the end of the loop
-    examples = ["one", "two"]
+    examples = ("one", "two")
     prompt = render(
         """
         {% for e in examples %}
@@ -78,7 +78,7 @@ def test_render_jinja():
     assert prompt == "Example: one\nExample: two\n"
 
     # We can remove the newline by cloing with -%}
-    examples = ["one", "two"]
+    examples = ("one", "two")
     prompt = render(
         """
         {% for e in examples %}
@@ -102,7 +102,7 @@ def test_render_jinja():
     assert render(tpl, is_true=False) == "final"
 
     # Ignore leading white spaces
-    examples = ["one", "two"]
+    examples = ("one", "two")
     prompt = render(
         """
         {% for e in examples %}
@@ -114,7 +114,7 @@ def test_render_jinja():
     assert prompt == "one\ntwo\n"
 
     # Do not ignore leading white spaces
-    examples = ["one", "two"]
+    examples = ("one", "two")
     prompt = render(
         """
         {% for e in examples %}
@@ -132,7 +132,7 @@ def test_prompt_basic():
         """{{variable}} test"""
 
     assert test_tpl.template == "{{variable}} test"
-    assert test_tpl.parameters == ["variable"]
+    assert list(test_tpl.signature.parameters.keys()) == ["variable"]
 
     with pytest.raises(TypeError):
         test_tpl(v="test")
@@ -157,7 +157,7 @@ def test_prompt_kwargs():
         """{{var}} and {{other_var}}"""
 
     assert test_kwarg_tpl.template == "{{var}} and {{other_var}}"
-    assert test_kwarg_tpl.parameters == ["var", "other_var"]
+    assert list(test_kwarg_tpl.signature.parameters.keys()) == ["var", "other_var"]
 
     p = test_kwarg_tpl("test")
     assert p == "test and other"
@@ -181,3 +181,25 @@ def test_no_prompt():
         @prompts.template
         def test_only_code(variable):
             return variable
+
+
+def test_dispatch():
+
+    @prompts.template
+    def simple_prompt(query: str):
+        """{{ query }}"""
+
+    @simple_prompt.register("provider/name")
+    def simple_prompt_name(query: str):
+        """name: {{ query }}"""
+
+    assert list(simple_prompt.registry.keys()) == ["provider/name"]
+    assert callable(simple_prompt)
+    assert callable(simple_prompt["provider/name"])
+
+    assert simple_prompt("test") == "test"
+    assert simple_prompt_name("test") == "name: test"
+
+    assert simple_prompt("test") == "test"
+    assert simple_prompt["gpt2"]("test") == "test"
+    assert simple_prompt["provider/name"]("test") == "name: test"
