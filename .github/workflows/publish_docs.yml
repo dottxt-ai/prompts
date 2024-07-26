@@ -3,7 +3,7 @@ name: Publish the documentation
 on:
   push:
     branches:
-      - main
+      - master
 
 permissions:
   contents: write
@@ -23,10 +23,10 @@ jobs:
           path: .cache
           restore-keys: |
             mkdocs-material-
-      - run:
+      - run: |
           python -m pip install --upgrade pip
           pip install .[docs]
           pip install -r requirements-doc.txt
       - name: Build documentation
-        run:
+        run: |
           mkdocs gh-deploy --force
