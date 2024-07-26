@@ -3,7 +3,7 @@ name = "prompts"
 version = "0.1.0"
 description = "Large Language Models prompting library"
 authors = [{name = "The Outlines developers", email = "contact@dottxt.co"}]
-requires-python = ">= 3.10"
+requires-python = ">= 3.8"
 dependencies = ["jinja2"]
 
 [build-system]
