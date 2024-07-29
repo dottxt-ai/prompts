@@ -43,4 +43,4 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Build SDist and Wheel
-        run: ./.github/scripts/build_sdist_and_wheel.sh
+        run: bash ./.github/scripts/build_sdist_and_wheel.sh
