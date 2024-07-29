@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # Build sdist and wheel
 python -m pip install -U pip
 python -m pip install build
