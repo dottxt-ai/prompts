@@ -2,12 +2,12 @@
 
 ## Prompt functions
 
-The `prompt` decorator takes a function as an argument whose docstring is a Jinja template, and return a `Prompt` object:
+The `template` decorator takes a function as an argument whose docstring is a Jinja template, and return a `Template` object:
 
 ```python
-from prompts import prompt
+from prompts import template
 
-@prompt
+@template
 def few_shots(instructions, examples, question):
     """{{ instructions }}
 
@@ -21,7 +21,7 @@ def few_shots(instructions, examples, question):
     A: """
 ```
 
-Caling the `Prompt` object renders the Jinja template:
+Caling the `Template` object renders the Jinja template:
 
 ```python
 instructions = "Please answer the following question following the examples" examples = [
