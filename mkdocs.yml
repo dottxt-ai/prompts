@@ -38,6 +38,27 @@ extra:
       link: https://twitter.com/OutlinesOSS
   generator: false
 
+
+markdown_extensions:
+  - admonition
+  - def_list
+  - attr_list
+  - md_in_html
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+      noclasses: True
+      pygments_style: gruvbox-light
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.inlinehilite
+  - pymdownx.details
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+
 plugins:
   - search
   - section-index
@@ -50,3 +71,7 @@ plugins:
 
 nav:
   - Home: index.md
+  - Docs:
+      - reference/index.md
+      - Prompt template: reference/template.md
+      - Dispatch: reference/dispatch.md
