@@ -75,3 +75,4 @@ nav:
       - reference/index.md
       - Prompt template: reference/template.md
       - Dispatch: reference/dispatch.md
+      - Special tokens: reference/special_tokens.md
