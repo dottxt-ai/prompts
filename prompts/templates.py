@@ -3,9 +3,11 @@ import re
 import warnings
 from dataclasses import dataclass, field
 from functools import lru_cache
-from typing import Callable, Dict, Hashable, Optional, Tuple, cast
+from typing import Callable, Dict, Hashable, Optional, cast
 
 from jinja2 import Environment, StrictUndefined
+
+from prompts.tokens import SPECIAL_TOKENS, Special
 
 
 @dataclass
@@ -276,17 +278,11 @@ def render(
         keep_trailing_newline=True,
         undefined=StrictUndefined,
     )
-    env.globals["bos"] = SPECIAL_TOKENS.get(model_name, ("", ""))[0]
-    env.globals["eos"] = SPECIAL_TOKENS.get(model_name, ("", ""))[1]
+    env.globals["bos"] = SPECIAL_TOKENS.get(model_name, Special()).sequence.begin
+    env.globals["eos"] = SPECIAL_TOKENS.get(model_name, Special()).sequence.end
+    env.globals["user"] = SPECIAL_TOKENS.get(model_name, Special()).user
+    env.globals["assistant"] = SPECIAL_TOKENS.get(model_name, Special()).assistant
+    env.globals["system"] = SPECIAL_TOKENS.get(model_name, Special()).system
     jinja_template = env.from_string(cleaned_template)
 
     return jinja_template.render(**values)
-
-
-# (BOS, EOS)
-SPECIAL_TOKENS: Dict[Optional[str], Tuple[str, str]] = {
-    None: ("", ""),
-    "google/gemma-2-9b": ("<bos>", "<eos>"),
-    "openai-community/gpt2": ("", "<|endoftext|>"),
-    "mistralai/Mistral-7B-v0.1": ("<s>", "</s>"),
-}
