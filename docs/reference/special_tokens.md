@@ -6,6 +6,9 @@ This means that one needs to write a new prompt each time they use a new model,
 only replacing these special tokens. This is error-prone and leads to duplicated
 work.
 
+
+## Beginning and end of sequences
+
 `prompts` provides special variables in its templates that allows user to use special tokens in their prompts in a model-agnotic way:
 
 ```python
@@ -29,3 +32,21 @@ print(a_simple_prompt["google/gemma-2-9b"]("question"))
 
     The registry is currently limited to a few models. Please [open an issue](https://github.com/outlines-dev/prompts/issues) if you
     want to use `prompts` with a model that is not currently in the registry.
+
+
+## Chat and Instruct models
+
+`prompts` also provides special variables `user`, `assistant` and `system` that are related to chat workflows, so you can design prompts with a chat format in a model-agnostic way:
+
+```python
+import prompts
+
+
+@prompts.template
+def simple_prompt(favorite: str):
+    """{{ bos + user.begin}} What is your favorite {{favorite + '? ' + user.end}}
+    {{ assistant.begin }}
+    """
+```
+
+Chat templates are so idiosyncractic, however, that we recommend using the `Chat` class to format according to chat templates.
