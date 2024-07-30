@@ -64,7 +64,7 @@ plugins:
   - section-index
   - git-committers:
       repository: outlines-dev/prompts
-      branch: main
+      branch: master
   - git-revision-date-localized:
       enable_creation_date: true
       type: timeago
