@@ -37,6 +37,7 @@ class Template:
 
     template: str
     signature: inspect.Signature
+    model: Optional[str] = None
     registry: Dict[str, Callable] = field(default_factory=dict)
 
     def __call__(self, *args, **kwargs) -> str:
@@ -83,6 +84,7 @@ class Template:
 
         def wrapper(fn: Callable):
             tpl = template(fn)
+            tpl.model = model_name
             self.registry[model_name] = tpl
             return tpl
 

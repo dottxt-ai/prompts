@@ -197,6 +197,10 @@ def test_dispatch():
     assert callable(simple_prompt)
     assert callable(simple_prompt["provider/name"])
 
+    assert simple_prompt.model is None
+    assert simple_prompt_name.model == "provider/name"
+    assert simple_prompt["provider/name"].model == "provider/name"
+
     assert simple_prompt("test") == "test"
     assert simple_prompt_name("test") == "name: test"
 
