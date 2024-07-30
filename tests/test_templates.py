@@ -183,6 +183,7 @@ def test_no_prompt():
             return variable
 
 
+@pytest.mark.filterwarnings("ignore: The model")
 def test_dispatch():
 
     @prompts.template
@@ -207,3 +208,24 @@ def test_dispatch():
     assert simple_prompt("test") == "test"
     assert simple_prompt["gpt2"]("test") == "test"
     assert simple_prompt["provider/name"]("test") == "name: test"
+
+
+def test_special_tokens():
+
+    @prompts.template
+    def simple_prompt(query: str):
+        """{{ bos + query + eos }}"""
+
+    assert simple_prompt("test") == "test"
+    assert simple_prompt["openai-community/gpt2"]("test") == "test<|endoftext|>"
+    assert simple_prompt["mistralai/Mistral-7B-v0.1"]("test") == "<s>test</s>"
+
+
+def test_warn():
+
+    @prompts.template
+    def simple_prompt():
+        """test"""
+
+    with pytest.warns(UserWarning, match="not present in the special token"):
+        simple_prompt["non-existent-model"]()

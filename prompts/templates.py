@@ -1,8 +1,9 @@
 import inspect
 import re
+import warnings
 from dataclasses import dataclass, field
 from functools import lru_cache
-from typing import Callable, Dict, Hashable, Optional, cast
+from typing import Callable, Dict, Hashable, Optional, Tuple, cast
 
 from jinja2 import Environment, StrictUndefined
 
@@ -29,6 +30,8 @@ class Template:
         The template to render.
     signature
         The prompt function's signature.
+    model
+        The model the `Template` is associated with. Defaults to `None`.
     registry
         Registry that maps function names to their respective `Template`
         instances.
@@ -50,7 +53,7 @@ class Template:
         """
         bound_arguments = self.signature.bind(*args, **kwargs)
         bound_arguments.apply_defaults()
-        return render(self.template, **bound_arguments.arguments)
+        return render(self.template, self.model, **bound_arguments.arguments)
 
     def __str__(self):
         return self.template
@@ -74,6 +77,7 @@ class Template:
         try:
             return self.registry[model_name]
         except KeyError:
+            self.model = model_name
             return self
 
     def register(self, model_name: str):
@@ -140,12 +144,20 @@ def template(fn: Callable) -> Template:
 
 
 @lru_cache
-def render(template: str, **values: Optional[Dict[str, Hashable]]) -> str:
+def render(
+    template: str,
+    model_name: Optional[str] = None,
+    **values: Optional[Dict[str, Hashable]],
+) -> str:
     r"""Parse a Jinaj2 template and translate it into an Outlines graph.
 
     This function removes extra whitespaces and linebreaks from templates to
     allow users to enter prompts more naturally than if they used Python's
     constructs directly. See the examples for a detailed explanation.
+
+    We also define the `bos` and `eos` special variables which, when used, will
+    be replaced by the model's BOS and EOS tokens respectively. This allows you
+    to write prompts that are model-agnostic.
 
     Examples
     --------
@@ -223,6 +235,8 @@ def render(template: str, **values: Optional[Dict[str, Hashable]]) -> str:
     ----------
     template
         A string that contains a template written with the Jinja2 syntax.
+    model_name
+        The name of the model to which the rendered string will be passed.
     **values
         Map from the variables in the template to their value.
 
@@ -245,12 +259,34 @@ def render(template: str, **values: Optional[Dict[str, Hashable]]) -> str:
     # used to continue to the next line without linebreak.
     cleaned_template = re.sub(r"(?![\r\n])(\b\s+)", " ", cleaned_template)
 
+    # Warn the user when the model is not present in the special token registry
+    if model_name not in SPECIAL_TOKENS:
+        warnings.warn(
+            UserWarning(
+                f"The model {model_name} is not present in the special token registry."
+                "As a result, EOS and BOS tokens will be rendered as the empty string."
+                "Please open an issue: https://github.com/outlines-dev/prompts/issues"
+                "And ask for the model to be added to the registry."
+            )
+        )
+
     env = Environment(
         trim_blocks=True,
         lstrip_blocks=True,
         keep_trailing_newline=True,
         undefined=StrictUndefined,
     )
+    env.globals["bos"] = SPECIAL_TOKENS.get(model_name, ("", ""))[0]
+    env.globals["eos"] = SPECIAL_TOKENS.get(model_name, ("", ""))[1]
     jinja_template = env.from_string(cleaned_template)
 
     return jinja_template.render(**values)
+
+
+# (BOS, EOS)
+SPECIAL_TOKENS: Dict[Optional[str], Tuple[str, str]] = {
+    None: ("", ""),
+    "google/gemma-2-9b": ("<bos>", "<eos>"),
+    "openai-community/gpt2": ("", "<|endoftext|>"),
+    "mistralai/Mistral-7B-v0.1": ("<s>", "</s>"),
+}
