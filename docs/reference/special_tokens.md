@@ -1,6 +1,6 @@
 # Handle special tokens
 
-Tokens that indicate the beginnning of a sequence, an end of sequence, that
+Tokens that indicate the beginning of a sequence, an end of sequence, that
 delineate user and assistant turns in a conversation, etc. are model-specific.
 This means that one needs to write a new prompt each time they use a new model,
 only replacing these special tokens. This is error-prone and leads to duplicated
@@ -9,7 +9,7 @@ work.
 
 ## Beginning and end of sequences
 
-`prompts` provides special variables in its templates that allows user to use special tokens in their prompts in a model-agnotic way:
+`prompts` provides special variables in its templates that allows user to use special tokens in their prompts in a model-agnostic way:
 
 ```python
 import prompts
@@ -49,4 +49,4 @@ def simple_prompt(favorite: str):
     """
 ```
 
-Chat templates are so idiosyncractic, however, that we recommend using the `Chat` class to format according to chat templates.
+Chat templates are so idiosyncratic, however, that we recommend using the `Chat` class to format according to chat templates.
