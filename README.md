@@ -1,4 +1,20 @@
-# Prompts
+<div align="center" style="margin-bottom: 1em;">
+
+<img src="./docs/assets/images/logo.png" alt="Prompts Logo" width=500></img>
+
+[![.txt Twitter][dottxt-twitter-badge]][dottxt-twitter]
+[![Outlines Twitter][outlines-twitter-badge]][outlines-twitter]
+
+[![Contributors][contributors-badge]][contributors]
+[![Discord][discord-badge]][discord]
+
+
+*A prompting library.*
+
+Made with ❤👷️ by the team at [.txt](https://dottxt.co).
+
+</div>
+
 
 ## Prompt functions
 
@@ -32,3 +48,13 @@ question = "4+4 = ?"
 
 prompt = few_shots(instructions, examples, question)
 ```
+
+
+[contributors]: https://github.com/dottxt-ai/prompts/graphs/contributors
+[contributors-badge]: https://img.shields.io/github/contributors/dottxt-ai/prompts?style=flat-square&logo=github&logoColor=white&color=ECEFF4
+[dottxt-twitter]: https://twitter.com/dottxtai
+[outlines-twitter]: https://twitter.com/OutlinesOSS
+[discord]: https://discord.gg/R9DSu34mGd
+[discord-badge]: https://img.shields.io/discord/1182316225284554793?color=81A1C1&logo=discord&logoColor=white&style=flat-square
+[dottxt-twitter-badge]: https://img.shields.io/twitter/follow/dottxtai?style=social
+[outlines-twitter-badge]: https://img.shields.io/twitter/follow/OutlinesOSS?style=social
