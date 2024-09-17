@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Dict, Optional
 
 
@@ -10,10 +10,10 @@ class Limits:
 
 @dataclass
 class Special:
-    sequence: Limits = Limits("", "")
-    user: Limits = Limits("", "")
-    assistant: Limits = Limits("", "")
-    system: Limits = Limits("", "")
+    sequence: Limits = field(default_factory=lambda: Limits())
+    user: Limits = field(default_factory=lambda: Limits())
+    assistant: Limits = field(default_factory=lambda: Limits())
+    system: Limits = field(default_factory=lambda: Limits())
 
 
 SPECIAL_TOKENS: Dict[Optional[str], Special] = {
