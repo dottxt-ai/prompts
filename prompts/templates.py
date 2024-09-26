@@ -1,13 +1,10 @@
 import inspect
 import re
-import warnings
 from dataclasses import dataclass, field
 from functools import lru_cache
 from typing import Callable, Dict, Hashable, Optional
 
 from jinja2 import Environment, StrictUndefined
-
-from prompts.tokens import SPECIAL_TOKENS, Special
 
 
 @dataclass
@@ -148,10 +145,6 @@ def render(
     allow users to enter prompts more naturally than if they used Python's
     constructs directly. See the examples for a detailed explanation.
 
-    We also define the `bos` and `eos` special variables which, when used, will
-    be replaced by the model's BOS and EOS tokens respectively. This allows you
-    to write prompts that are model-agnostic.
-
     Examples
     --------
 
@@ -252,28 +245,12 @@ def render(
     # used to continue to the next line without linebreak.
     cleaned_template = re.sub(r"(?![\r\n])(\b\s+)", " ", cleaned_template)
 
-    # Warn the user when the model is not present in the special token registry
-    if model_name not in SPECIAL_TOKENS:
-        warnings.warn(
-            UserWarning(
-                f"The model {model_name} is not present in the special token registry."
-                "As a result, EOS and BOS tokens will be rendered as the empty string."
-                "Please open an issue: https://github.com/outlines-dev/prompts/issues"
-                "And ask for the model to be added to the registry."
-            )
-        )
-
     env = Environment(
         trim_blocks=True,
         lstrip_blocks=True,
         keep_trailing_newline=True,
         undefined=StrictUndefined,
     )
-    env.globals["bos"] = SPECIAL_TOKENS.get(model_name, Special()).sequence.begin
-    env.globals["eos"] = SPECIAL_TOKENS.get(model_name, Special()).sequence.end
-    env.globals["user"] = SPECIAL_TOKENS.get(model_name, Special()).user
-    env.globals["assistant"] = SPECIAL_TOKENS.get(model_name, Special()).assistant
-    env.globals["system"] = SPECIAL_TOKENS.get(model_name, Special()).system
     jinja_template = env.from_string(cleaned_template)
 
     return jinja_template.render(**values)
