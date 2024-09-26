@@ -3,7 +3,7 @@ import re
 import warnings
 from dataclasses import dataclass, field
 from functools import lru_cache
-from typing import Callable, Dict, Hashable, Optional, cast
+from typing import Callable, Dict, Hashable, Optional
 
 from jinja2 import Environment, StrictUndefined
 
@@ -15,7 +15,7 @@ class Template:
     """Represents a prompt template.
 
     A prompt template is a callable that, given a Jinja2 template and a set of values,
-    renders the template using those values. It is recommended to instantiate `Temaplate`
+    renders the template using those values. It is recommended to instantiate `Template`
     using the `template` decorator, which extracts the template from the function's
     docstring and its variables from the function's signature.
 
@@ -40,7 +40,7 @@ class Template:
 
     """
 
-    template: str
+    fn: Callable
     signature: inspect.Signature
     model: Optional[str] = None
     registry: Dict[str, Callable] = field(default_factory=dict)
@@ -55,10 +55,10 @@ class Template:
         """
         bound_arguments = self.signature.bind(*args, **kwargs)
         bound_arguments.apply_defaults()
-        return render(self.template, self.model, **bound_arguments.arguments)
 
-    def __str__(self):
-        return self.template
+        template = self.fn(**bound_arguments.arguments)
+
+        return render(template, self.model, **bound_arguments.arguments)
 
     def __getitem__(self, model_name: str):
         """Get the prompt template corresponding to a model name.
@@ -104,11 +104,11 @@ def template(fn: Callable) -> Template:
     manipulation by providing some degree of encapsulation. It uses the `render`
     function internally to render templates.
 
-    >>> import outlines
+    >>> import prompts
     >>>
-    >>> @outlines.prompt
+    >>> @prompts.template
     >>> def build_prompt(question):
-    ...    "I have a ${question}"
+    ...    return "I have a {{question}}"
     ...
     >>> prompt = build_prompt("How are you?")
 
@@ -116,12 +116,11 @@ def template(fn: Callable) -> Template:
     are set when the agent is initialized and never modified later. In this situation
     we can partially apply the prompt function at initialization.
 
-    >>> import outlines
-    >>> import functools as ft
+    >>> import prompts
     ...
-    >>> @outlines.prompt
+    >>> @prompts.template
     ... def solve_task(name: str, objective: str, task: str):
-    ...     '''Your name is {{name}}.
+    ...     return '''Your name is {{name}}.
     ..      Your overall objective is to {{objective}}.
     ...     Please solve the following task: {{task}}'''
     ...
@@ -134,15 +133,7 @@ def template(fn: Callable) -> Template:
     """
     signature = inspect.signature(fn)
 
-    # The docstring contains the template that will be rendered to be used
-    # as a prompt to the language model.
-    docstring = fn.__doc__
-    if docstring is None:
-        raise TypeError("Could not find a template in the function's docstring.")
-
-    template = cast(str, docstring)
-
-    return Template(template, signature)
+    return Template(fn, signature)
 
 
 @lru_cache
