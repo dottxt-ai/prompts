@@ -1,3 +1,6 @@
+import random
+import string
+
 import pytest
 
 import prompts
@@ -192,3 +195,42 @@ def test_dispatch():
     assert simple_prompt("test") == "test"
     assert simple_prompt["gpt2"]("test") == "test"
     assert simple_prompt["provider/name"]("test") == "name: test"
+
+
+def test_benchmark_template_render(benchmark):
+
+    @prompts.template
+    def test_tpl(var0, var1):
+        prompt = var0
+        return prompt + """{{var1}} test"""
+
+    def setup():
+        """We generate random strings to make sure we don't hit any potential cache."""
+        length = 10
+        var0 = "".join(
+            random.choice(string.ascii_uppercase + string.digits) for _ in range(length)
+        )
+        var1 = "".join(
+            random.choice(string.ascii_uppercase + string.digits) for _ in range(length)
+        )
+        return (var0, var1), {}
+
+    benchmark.pedantic(test_tpl, setup=setup, rounds=500)
+
+
+def test_benchmark_template_function(benchmark):
+
+    def test_tpl(var0, var1):
+        return var0 + f"{var1} test"
+
+    def setup():
+        length = 10
+        var0 = "".join(
+            random.choice(string.ascii_uppercase + string.digits) for _ in range(length)
+        )
+        var1 = "".join(
+            random.choice(string.ascii_uppercase + string.digits) for _ in range(length)
+        )
+        return (var0, var1), {}
+
+    benchmark.pedantic(test_tpl, setup=setup, rounds=500)

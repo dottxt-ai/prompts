@@ -20,7 +20,7 @@ packages = ["prompts"]
 write_to = "prompts/_version.py"
 
 [project.optional-dependencies]
-test = ["pre-commit", "pytest"]
+test = ["pre-commit", "pytest", "pytest-benchmark"]
 docs = [
     "mkdocs",
     "mkdocs-material",
