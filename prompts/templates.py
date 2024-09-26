@@ -11,10 +11,15 @@ from jinja2 import Environment, StrictUndefined
 class Template:
     """Represents a prompt template.
 
-    A prompt template is a callable that, given a Jinja2 template and a set of values,
-    renders the template using those values. It is recommended to instantiate `Template`
-    using the `template` decorator, which extracts the template from the function's
-    docstring and its variables from the function's signature.
+    A prompt template is a callable with renders the template returned by the
+    function using the values that are passed to it. It is recommended to
+    instantiate `Template` using the `template` decorator.
+
+    >>> import prompts
+    ...
+    ... @prompts.template
+    ... def prompt(name: str) -> str:
+    ...    return "My name is {{name}}"
 
     It is not uncommon that, for the same taks, different models will perform
     better with different prompt. Here we thus allow to dispatch to associate a
@@ -22,13 +27,24 @@ class Template:
     `Template` instance is thus also a registry that associates model names to
     other templates.
 
+    >>> @prompt.register("gpt2")
+    ... def prompt_gpt2(name: str) -> str:
+    ...     return "Hi GPT2! My name is {{name}}"
+
+    The name of the model can then be passed to the render function along with
+    the model name and the values of the arguments:
+
+    >>> from prompts import render
+    ...
+    ... render(prompt, "gpt2", name="Dan")
+    >>> "Hi GPT2! My name is Dan"
 
     Attributes
     ----------
-    template
-        The template to render.
+    fn
+        The function that returns a template.
     signature
-        The prompt function's signature.
+        The function's signature.
     model
         The model the `Template` is associated with. Defaults to `None`.
     registry
@@ -81,7 +97,7 @@ class Template:
 
     def register(self, model_name: str):
         """Register the prompt template, as represented by a prompt function,
-        for the model name.
+        for a given model `model_name`.
 
         """
 
@@ -95,11 +111,11 @@ class Template:
 
 
 def template(fn: Callable) -> Template:
-    """Decorate a function that contains a prompt template.
+    """Decorate a function that returns a prompt template.
 
-    This allows to define prompts in the docstring of a function and simplify their
-    manipulation by providing some degree of encapsulation. It uses the `render`
-    function internally to render templates.
+    This allows to define prompts as the return value of a function and simplify
+    their manipulation by providing some degree of encapsulation. It uses the
+    `render` function internally to render templates.
 
     >>> import prompts
     >>>
@@ -125,7 +141,7 @@ def template(fn: Callable) -> Template:
 
     Returns
     -------
-    A `Prompt` callable class which will render the template when called.
+    A `Template` callable class which will render the template when called.
 
     """
     signature = inspect.signature(fn)
@@ -139,7 +155,7 @@ def render(
     model_name: Optional[str] = None,
     **values: Optional[Dict[str, Hashable]],
 ) -> str:
-    r"""Parse a Jinaj2 template and translate it into an Outlines graph.
+    r"""Parse a Jinaj2 template and renders it using the passed values.
 
     This function removes extra whitespaces and linebreaks from templates to
     allow users to enter prompts more naturally than if they used Python's
@@ -150,13 +166,13 @@ def render(
 
     Outlines follow Jinja2's syntax
 
-    >>> import outlines
-    >>> outline = outlines.render("I like {{food}} and {{sport}}", food="tomatoes", sport="tennis")
+    >>> from prompts import render
+    >>> render("I like {{food}} and {{sport}}", food="tomatoes", sport="tennis")
     I like tomatoes and tennis
 
     If the first line of the template is empty, `render` removes it
 
-    >>> from outlines import render
+    >>> from prompts import render
     >>>
     >>> tpl = '''
     ... A new string'''
