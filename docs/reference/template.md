@@ -25,6 +25,11 @@ allows to easily compose complex prompts.
     Prompt functions are opinionated when it comes to prompt rendering. These opinions are meant to avoid common prompting errors, but can have unintended consequences if you are doing something unusual. We advise to always print the prompt before using it. You can also [read the
     reference](#formatting-conventions) section if you want to know more.
 
+
+!!! note "Performance"
+
+    Prompt templates introduce some overhead compared to standard Python functions, although the rendering time is still very reasonable. In the unlikely scenario where rendering templates are a bottleneck you can replace them with functions that use standard string manipulation.
+
 ## Your first prompt
 
 The following snippet showcases a very simple prompt. The variables between
