@@ -24,7 +24,7 @@ from prompts import template
 
 @template
 def few_shots(instructions, examples, question):
-    """{{ instructions }}
+    return """{{ instructions }}
 
     Examples
     --------

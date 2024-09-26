@@ -38,7 +38,7 @@ will pass to the prompt function.
 
     @prompts.template
     def greetings(name, question):
-        """Hello, {{ name }}!
+        return """Hello, {{ name }}!
         {{ question }}
         """
 
@@ -62,7 +62,7 @@ If a variable is missing in the function's arguments, Jinja2 will throw an `Unde
 
     @prompts.template
     def greetings(name):
-        """Hello, {{ surname }}!"""
+        return """Hello, {{ surname }}!"""
 
     prompt = greetings("user")
     ```
@@ -94,7 +94,7 @@ Prompt functions are functions, and thus can be imported from other modules:
 
     @prompts.template
     def greetings(name, question):
-        """Hello, {{ name }}!
+        return """Hello, {{ name }}!
         {{ question }}
         """
     ```
@@ -128,7 +128,7 @@ keys `question` and `answer` to the prompt function:
 
     @prompts.template
     def few_shots(instructions, examples, question):
-        """{{ instructions }}
+        return """{{ instructions }}
 
         Examples
         --------
@@ -207,12 +207,12 @@ below does not matter for formatting:
 
     @prompts.template
     def prompt1():
-        """My prompt
+        return """My prompt
         """
 
     @prompts.template
     def prompt2():
-        """
+        return """
         My prompt
         """
 
@@ -236,20 +236,20 @@ Indentation is relative to the second line of the docstring, and leading spaces 
 
     @prompts.template
     def example1():
-        """First line
+        return """First line
         Second line
         """
 
     @prompts.template
     def example2():
-        """
+        return """
           Second line
           Third line
         """
 
     @prompts.template
     def example3():
-        """
+        return """
           Second line
             Third line
         """
@@ -285,7 +285,7 @@ You can use the backslash `\` to break a long line of text. It will render as a 
 
     @prompts.template
     def example():
-       """
+       return """
        Break in \
        several lines \
        But respect the indentation

@@ -129,9 +129,8 @@ def test_render_jinja():
 def test_prompt_basic():
     @prompts.template
     def test_tpl(variable):
-        """{{variable}} test"""
+        return """{{variable}} test"""
 
-    assert test_tpl.template == "{{variable}} test"
     assert list(test_tpl.signature.parameters.keys()) == ["variable"]
 
     with pytest.raises(TypeError):
@@ -145,7 +144,7 @@ def test_prompt_basic():
 
     @prompts.template
     def test_single_quote_tpl(variable):
-        "${variable} test"
+        return "{{variable}} test"
 
     p = test_tpl("test")
     assert p == "test test"
@@ -154,9 +153,8 @@ def test_prompt_basic():
 def test_prompt_kwargs():
     @prompts.template
     def test_kwarg_tpl(var, other_var="other"):
-        """{{var}} and {{other_var}}"""
+        return """{{var}} and {{other_var}}"""
 
-    assert test_kwarg_tpl.template == "{{var}} and {{other_var}}"
     assert list(test_kwarg_tpl.signature.parameters.keys()) == ["var", "other_var"]
 
     p = test_kwarg_tpl("test")
@@ -169,30 +167,16 @@ def test_prompt_kwargs():
     assert p == "test and test"
 
 
-def test_no_prompt():
-    with pytest.raises(TypeError, match="template"):
-
-        @prompts.template
-        def test_empty(variable):
-            pass
-
-    with pytest.raises(TypeError, match="template"):
-
-        @prompts.template
-        def test_only_code(variable):
-            return variable
-
-
 @pytest.mark.filterwarnings("ignore: The model")
 def test_dispatch():
 
     @prompts.template
     def simple_prompt(query: str):
-        """{{ query }}"""
+        return """{{ query }}"""
 
     @simple_prompt.register("provider/name")
     def simple_prompt_name(query: str):
-        """name: {{ query }}"""
+        return """name: {{ query }}"""
 
     assert list(simple_prompt.registry.keys()) == ["provider/name"]
     assert callable(simple_prompt)
@@ -214,7 +198,7 @@ def test_special_tokens():
 
     @prompts.template
     def simple_prompt(query: str):
-        """{{ bos + query + eos }}"""
+        return """{{ bos + query + eos }}"""
 
     assert simple_prompt("test") == "test"
     assert simple_prompt["openai-community/gpt2"]("test") == "test<|endoftext|>"
@@ -225,7 +209,7 @@ def test_warn():
 
     @prompts.template
     def simple_prompt():
-        """test"""
+        return """test"""
 
     with pytest.warns(UserWarning, match="not present in the special token"):
         simple_prompt["non-existent-model"]()
