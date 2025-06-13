@@ -39,7 +39,8 @@ def few_shots(instructions, examples, question):
 Calling the `Template` object renders the Jinja template:
 
 ```python
-instructions = "Please answer the following question following the examples" examples = [
+instructions = "Please answer the following question following the examples"
+examples = [
     {"question": "2+2=?", "answer":4},
     {"question": "3+3=?", "answer":6},
 ]
