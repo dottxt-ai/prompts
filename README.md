@@ -4,6 +4,7 @@
 
 [![.txt Twitter][dottxt-twitter-badge]][dottxt-twitter]
 
+[![Test][tests-badge]][tests]
 [![Contributors][contributors-badge]][contributors]
 [![Discord][discord-badge]][discord]
 
@@ -52,7 +53,9 @@ prompt = few_shots(instructions, examples, question)
 
 [contributors]: https://github.com/dottxt-ai/prompts/graphs/contributors
 [contributors-badge]: https://img.shields.io/github/contributors/dottxt-ai/prompts?style=flat-square&logo=github&logoColor=white&color=ECEFF4
-[dottxt-twitter]: https://twitter.com/dottxtai
+[tests-badge]: https://github.com/dottxt-ai/prompts/actions/workflows/tests.yml/badge.svg
+[tests]: https://github.com/dottxt-ai/prompts/actions/workflows/tests.yml
+[dottxt-twitter]: https://x.com/dottxtai
 [discord]: https://discord.gg/R9DSu34mGd
 [discord-badge]: https://img.shields.io/discord/1182316225284554793?color=81A1C1&logo=discord&logoColor=white&style=flat-square
 [dottxt-twitter-badge]: https://img.shields.io/twitter/follow/dottxtai?style=social
