@@ -4,7 +4,7 @@ version = "0.1.0"
 description = "Large Language Models prompting library"
 authors = [{name = "The Outlines developers", email = "contact@dottxt.co"}]
 requires-python = ">= 3.8"
-dependencies = ["jinja2"]
+dependencies = ["jinja2", "pydantic", "transformers"]
 
 [build-system]
 requires = ["setuptools>=45", "setuptools_scm[toml]>=6.2"]
@@ -35,5 +35,5 @@ file="README.md"
 content-type = "text/markdown"
 
 [[tool.mypy.overrides]]
-module = ["jinja2", "pytest"]
+module = ["jinja2", "pydantic", "pytest", "transformers"]
 ignore_missing_imports = true
